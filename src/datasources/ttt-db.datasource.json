@@ -1,0 +1,6 @@
+{
+  "name": "ttt_db",
+  "connector": "memory",
+  "localStorage": "",
+  "file": "./data/ttt-db.json"
+}
