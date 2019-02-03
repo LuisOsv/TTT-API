@@ -1,4 +1,4 @@
-import {Entity, model, property} from '@loopback/repository';
+import { Entity, model, property } from '@loopback/repository';
 
 @model()
 export class Point extends Entity {
@@ -28,6 +28,9 @@ export class Point extends Entity {
   })
   symbol: string;
 
+
+  @property()
+  boardId: number;
 
   constructor(data?: Partial<Point>) {
     super(data);
