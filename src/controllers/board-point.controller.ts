@@ -23,40 +23,54 @@ export class BoardPointController {
   @post('/board/{id}/point')
   async createPointAndVerify(@param.path.number('id') id: number,
     @requestBody() point: Point) {
+
     // verify horizontal winner
-    // 1. get all stored points for same symbol and same coordinate Y
-    var points = await this.boardRepo.points(id).find({
+    var pointsForAxisX = await this.getStoredPointsForAxisX(id, point);
+    pointsForAxisX.push(point);
+    if (pointsForAxisX.length == 3) {
+      console.log('Winner X');
+    }
+
+    // verify vertical winner
+    var pointsForAxisY = await this.getStoredPointsForAxisY(id, point);
+    pointsForAxisY.push(point);
+    if (pointsForAxisY.length == 3) {
+      console.log('Winner Y');
+    }
+
+    // verify diagonal winner
+
+    return await this.boardRepo.points(id).create(point);
+  }
+
+  getStoredPointsForAxisX(id: number, point: Point): Promise<Point[]> {
+    return this.boardRepo.points(id).find({
       where: {
         symbol: point.symbol,
         y: point.y
       }
     });
-    points.push(point);
-    points.sort((a, b) => a.x - b.x);
+  }
 
-    points.forEach(element => {
-      console.log(element.x + " - " + element.y);
+  getStoredPointsForAxisY(id: number, point: Point): Promise<Point[]> {
+    return this.boardRepo.points(id).find({
+      where: {
+        symbol: point.symbol,
+        x: point.x
+      }
     });
+  }
 
-    // 2. verify if all points are consecutive x coordinates
-    /* var isConsecutive = true;
+  verifyPointsAreConsecutiveForAxisX(points: Point[]): boolean {
+    var isConsecutive = true;
+    points.sort((a, b) => a.x - b.x);
     for (var index = 0; index < points.length - 1; index++) {
       if (!(points[index].x < points[index + 1].x)) {
         isConsecutive = false;
         break;
       }
     }
-
-    if (isConsecutive) {
-      console.log('Winner');
-    } */
-
-    // verify vertical winner
-    // verify diagonal winner
-
-    return await this.boardRepo.points(id).create(point);
+    return isConsecutive;
   }
-
-
 
 }

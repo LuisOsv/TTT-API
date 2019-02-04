@@ -1,3 +1,17 @@
 # ttt-api
 
-[![LoopBack](https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png)](http://loopback.io/)
+tic tac toe API build with loopback
+
+# Installation
+run app with
+```npm start```
+
+# Usage
+```
+http://localhost:3000/board/1/point
+{
+	"x":1,
+	"y":1,
+	"symbol":"X"
+}
+```
