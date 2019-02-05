@@ -33,26 +33,27 @@ export class BoardPointController {
   })
   async createPointAndVerify(@param.path.number('id') id: number,
     @requestBody() point: Point) {
+    var messageWinner;
 
     // verify horizontal winner
     var pointsForAxisX = await this.getStoredPointsForAxisX(id, point);
     pointsForAxisX.push(point);
     if (pointsForAxisX.length == 3) {
-      console.log('Winner ' + point.symbol);
+      messageWinner = 'Winner ' + point.symbol;
+    } else {
+      // verify vertical winner
+      var pointsForAxisY = await this.getStoredPointsForAxisY(id, point);
+      pointsForAxisY.push(point);
+      if (pointsForAxisY.length == 3) {
+        messageWinner = 'Winner ' + point.symbol;
+      }
     }
-
-    // verify vertical winner
-    var pointsForAxisY = await this.getStoredPointsForAxisY(id, point);
-    pointsForAxisY.push(point);
-    if (pointsForAxisY.length == 3) {
-      console.log('Winner ' + point.symbol);
-    }
-
     // verify diagonal winner
 
+    var messagePointCreated = 'Point created successfully';
     var pointCreated = await this.boardRepo.points(id).create(point);
     return {
-      messagePoint: 'Point created successfully',
+      messagePoint: messageWinner == null ? messagePointCreated : messageWinner,
       xPoint: pointCreated.x,
       yPoint: pointCreated.y,
       symbolPoint: pointCreated.symbol,
