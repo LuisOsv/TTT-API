@@ -7,6 +7,15 @@ import { Point } from "../models";
 
 // import {inject} from '@loopback/context';
 
+const schemaPoint = {
+  type: 'object',
+  properties: {
+    messagePoint: { type: 'string' },
+    xPoint: { type: 'number' },
+    yPoint: { type: 'number' },
+    symbolPoint: { type: 'string' },
+  },
+};
 
 export class BoardPointController {
   constructor(
@@ -14,13 +23,14 @@ export class BoardPointController {
     protected boardRepo: BoardRepository,
   ) { }
 
-  @post('/board/{id}/points')
-  async createPoint(@param.path.number('id') id: number,
-    @requestBody() point: Point) {
-    return await this.boardRepo.points(id).create(point);
-  }
-
-  @post('/board/{id}/point')
+  @post('/board/{id}/point', {
+    responses: {
+      '200': {
+        description: 'Point model instance',
+        content: { 'application/json': { schema: schemaPoint } },
+      },
+    },
+  })
   async createPointAndVerify(@param.path.number('id') id: number,
     @requestBody() point: Point) {
 
@@ -28,19 +38,25 @@ export class BoardPointController {
     var pointsForAxisX = await this.getStoredPointsForAxisX(id, point);
     pointsForAxisX.push(point);
     if (pointsForAxisX.length == 3) {
-      console.log('Winner X');
+      console.log('Winner ' + point.symbol);
     }
 
     // verify vertical winner
     var pointsForAxisY = await this.getStoredPointsForAxisY(id, point);
     pointsForAxisY.push(point);
     if (pointsForAxisY.length == 3) {
-      console.log('Winner Y');
+      console.log('Winner ' + point.symbol);
     }
 
     // verify diagonal winner
 
-    return await this.boardRepo.points(id).create(point);
+    var pointCreated = await this.boardRepo.points(id).create(point);
+    return {
+      messagePoint: 'Point created successfully',
+      xPoint: pointCreated.x,
+      yPoint: pointCreated.y,
+      symbolPoint: pointCreated.symbol,
+    };
   }
 
   getStoredPointsForAxisX(id: number, point: Point): Promise<Point[]> {
